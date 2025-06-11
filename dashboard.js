@@ -1,9 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Configuration
     const BOT_TOKEN = '7285369349:AAEqC1zaBowR7o3rq2_J2ewPRwUUaNE7KKM';
-    const GROUP_ID = '-4815878740';
-    const POLL_INTERVAL = 2000; // 2 seconds
-    const TIMEOUT = 30000; // 30 seconds
+    const GROUP_ID = '-4871271467';
     
     // DOM Elements
     const startDeployBtn = document.getElementById('startDeployBtn');
@@ -24,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const restartBotBtn = document.getElementById('restartBotBtn');
     const closeButtons = document.querySelectorAll('.close');
     const logoutBtn = document.getElementById('logoutBtn');
+    const themeBtns = document.querySelectorAll('.theme-btn');
     
     // State variables
     let connectedNumber = null;
@@ -35,6 +34,26 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('username').textContent = currentUser.name;
         document.getElementById('welcomeMessage').textContent = `Welcome back, ${currentUser.name}`;
     }
+    
+    // Theme switching
+    themeBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const theme = this.dataset.theme;
+            document.body.className = `${theme}-theme`;
+            
+            // Update active button
+            themeBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Save theme preference
+            localStorage.setItem('theme', theme);
+        });
+    });
+    
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.body.className = `${savedTheme}-theme`;
+    document.querySelector(`.theme-btn[data-theme="${savedTheme}"]`).classList.add('active');
     
     // Event Listeners
     startDeployBtn.addEventListener('click', () => {
@@ -109,19 +128,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 startDeploymentProcess();
             }, 1500);
         } else {
-            // Regular verification through Telegram bot
-            showStatus(passcodeStatus, 'Verifying passcode...', 'info');
-            try {
-                await sendTelegramMessage(`/passcode ${passcode}`);
-                showStatus(passcodeStatus, 'Passcode sent for verification', 'info');
-                setTimeout(() => {
-                    passcodeModal.style.display = 'none';
-                    startDeploymentProcess();
-                }, 1500);
-            } catch (error) {
-                console.error('Error:', error);
-                showStatus(passcodeStatus, 'Failed to verify passcode. Please try again.', 'error');
-            }
+            showStatus(passcodeStatus, 'Failed to verify passcode. Please get passcode from Telegram bot.', 'error');
+            return;
         }
     }
     
@@ -164,21 +172,24 @@ document.addEventListener('DOMContentLoaded', function() {
             // Send pair command to Telegram group
             await sendTelegramMessage(`/pair ${phoneNumber}`);
             
-            // Show pairing code immediately without waiting for response
+            // Show pairing code immediately
             pairingCodeContainer.style.display = 'block';
             showStatus(whatsappStatus, 'WhatsApp number paired successfully!', 'success');
             
-            addConsoleLine('╭⭑━━━➤ TEDDY BOT INC', 'info');
-            addConsoleLine('┣ ◁️ Connected successfully to', 'info');
-            addConsoleLine(`┣ ◁️ ${phoneNumber}`, 'info');
-            addConsoleLine('╰━━━━━━━━━━━━━━━━━━━╯', 'info');
-            addConsoleLine('Your bot is now live on your WhatsApp!', 'success');
-            
-            // Hide modal and show stop/restart buttons
-            whatsappModal.style.display = 'none';
-            isBotRunning = true;
-            stopBotBtn.style.display = 'inline-flex';
-            restartBotBtn.style.display = 'inline-flex';
+            // Show connection status after 30 seconds
+            setTimeout(() => {
+                addConsoleLine('╭⭑━━━➤ PHISTAR BOT INC', 'info');
+                addConsoleLine('┣ ◁️ Connected successfully to', 'info');
+                addConsoleLine(`┣ ◁️ ${phoneNumber}`, 'info');
+                addConsoleLine('╰━━━━━━━━━━━━━━━━━━━╯', 'info');
+                addConsoleLine('Your bot is now live on your WhatsApp!', 'success');
+                
+                // Hide modal and show stop/restart buttons
+                whatsappModal.style.display = 'none';
+                isBotRunning = true;
+                stopBotBtn.style.display = 'inline-flex';
+                restartBotBtn.style.display = 'inline-flex';
+            }, 30000);
         } catch (error) {
             console.error('Error:', error);
             showStatus(whatsappStatus, 'Failed to pair WhatsApp number. Please try again.', 'error');
@@ -195,6 +206,7 @@ document.addEventListener('DOMContentLoaded', function() {
             isBotRunning = false;
             stopBotBtn.style.display = 'none';
             restartBotBtn.style.display = 'none';
+            pairingCodeContainer.style.display = 'none';
         } catch (error) {
             console.error('Error:', error);
             addConsoleLine('Failed to stop bot. Please try again.', 'error');
@@ -205,18 +217,34 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!connectedNumber) return;
         
         addConsoleLine('Restarting bot...', 'info');
+        addConsoleLine('Stopping bot...', 'info');
+        
         try {
-            // First stop the bot
+            // Stop the bot
             await sendTelegramMessage(`/delpair ${connectedNumber}`);
             addConsoleLine('Bot stopped', 'info');
             
-            // Wait 5 seconds
-            await new Promise(resolve => setTimeout(resolve, 5000));
+            // Wait 10 seconds
+            addConsoleLine('Waiting 10 seconds before restart...', 'info');
+            await new Promise(resolve => setTimeout(resolve, 10000));
             
-            // Then start it again
+            // Start the bot again
+            addConsoleLine('Starting bot again...', 'info');
             await sendTelegramMessage(`/pair ${connectedNumber}`);
+            
+            // Show pairing code again
+            pairingCodeContainer.style.display = 'block';
             addConsoleLine('Bot restarted successfully', 'success');
-            addConsoleLine('Your pairing code: DRAY-1922', 'info');
+            addConsoleLine('Your new pairing code: DRAY-1922', 'info');
+            
+            // Show connection status after 30 seconds
+            setTimeout(() => {
+                addConsoleLine('╭⭑━━━➤ PHISTAR BOT INC', 'info');
+                addConsoleLine('┣ ◁️ Reconnected successfully to', 'info');
+                addConsoleLine(`┣ ◁️ ${connectedNumber}`, 'info');
+                addConsoleLine('╰━━━━━━━━━━━━━━━━━━━╯', 'info');
+                addConsoleLine('Your bot is now live again on your WhatsApp!', 'success');
+            }, 30000);
         } catch (error) {
             console.error('Error:', error);
             addConsoleLine('Failed to restart bot. Please try again.', 'error');
@@ -256,5 +284,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Initialize console
-    addConsoleLine('Teddy Xmd Deployment Console initialized', 'info');
+    addConsoleLine('Big Daddy V2 Deployment Console initialized', 'info');
 });
+                          
