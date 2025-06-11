@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Configuration
     const BOT_TOKEN = '7285369349:AAEqC1zaBowR7o3rq2_J2ewPRwUUaNE7KKM';
-    const GROUP_ID = '-4871271467';
+    const GROUP_ID = '-2568734693';
     
     // DOM Elements
     const startDeployBtn = document.getElementById('startDeployBtn');
