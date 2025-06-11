@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Configuration
-    const BOT_TOKEN = '7285369349:AAEqC1zaBowR7o3rq2_J2ewPRwUUaNE7KKM';
+    const BOT_TOKEN = '8130654248:AAHPQed5iTFrZNkvp7Cc3_GnKiWwz81uovs';
     const GROUP_ID = '-2568734693';
     
     // DOM Elements
